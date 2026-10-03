@@ -31,3 +31,28 @@ df["Loan_Status"] = df["Loan_Status"].map({
 print(df["Loan_Status"].value_counts())
 X = df.drop("Loan_Status", axis=1)
 y = df["Loan_Status"]
+categorical_columns = X.select_dtypes(
+    include=["object"]
+).columns.tolist()
+
+numerical_columns = X.select_dtypes(
+    exclude=["object"]
+).columns.tolist()
+
+print("Categorical columns:")
+print(categorical_columns)
+
+print("\nNumerical columns:")
+print(numerical_columns)
+numerical_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", RobustScaler())
+])
+categorical_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("onehot", OneHotEncoder(handle_unknown="ignore"))
+])
+preprocessor = ColumnTransformer([
+    ("num", numerical_pipeline, numerical_columns),
+    ("cat", categorical_pipeline, categorical_columns)
+])
